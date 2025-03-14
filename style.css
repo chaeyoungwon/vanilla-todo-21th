@@ -87,6 +87,12 @@ body.dark-mode .dateButton {
   color: white;
 }
 
+#todo-count {
+  font-weight: bold;
+  margin-left: 10px;
+  color: rgb(0, 0, 0);
+}
+
 /* 입력창 스타일 */
 .inputContainer {
   display: flex;

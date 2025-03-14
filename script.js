@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const sidebar = document.querySelector(".sidebar");
   const hamburger = document.querySelector(".hamburger");
   const closeBtn = document.querySelector(".close");
+  const todoCountSpan = document.getElementById("todo-count");
 
   // 현재 선택된 날짜
   let currentDate = new Date().toISOString().split("T")[0];
@@ -27,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateDateUI() {
     currentDateSpan.textContent = formatDate(currentDate);
     datePicker.value = currentDate;
+    updateTodoCount();
   }
 
   // 할 일 리스트 불러오기 (로컬 스토리지)
@@ -36,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
     todos.forEach(({ id, text, completed }) =>
       addTodoElement(id, text, completed)
     );
+    updateTodoCount();
   }
 
   // 새로운 할 일 요소 추가
@@ -46,6 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = completed;
+    checkbox.classList.add("checkbox");
     checkbox.addEventListener("change", () =>
       toggleComplete(id, checkbox.checked)
     );
@@ -78,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem(currentDate, JSON.stringify(todos));
     addTodoElement(newTodo.id, text);
     input.value = "";
+    updateTodoCount();
   }
 
   // 할 일 삭제
@@ -96,6 +101,13 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     localStorage.setItem(currentDate, JSON.stringify(todos));
     loadTodos();
+  }
+
+  // Todo 개수 업데이트 함수 (체크된 항목 제외)
+  function updateTodoCount() {
+    const todos = JSON.parse(localStorage.getItem(currentDate)) || [];
+    const activeTodos = todos.filter((todo) => !todo.completed).length;
+    todoCountSpan.textContent = activeTodos;
   }
 
   // 날짜 변경 (이전/다음)
