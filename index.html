@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="STYLESHEET" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vanilla-todo</title>
+  </head>
+  <body>
+    <header>
+      <h2>To Do</h2>
+    </header>
+    <nav>
+      <button class="dateButton" id="prev">◀</button>
+      <span id="currentDate"></span>
+      <button class="dateButton" id="next">▶</button>
+    </nav>
+    <main>
+      <div class="inputContainer">
+        <input placeholder="오늘의 할 일을 적어주세요!" class="input" />
+        <button class="enter">등록</button>
+      </div>
+      <div class="container"></div>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
