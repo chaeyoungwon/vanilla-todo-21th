@@ -9,7 +9,7 @@
   box-sizing: border-box;
 }
 
-/* 페이지 전체 */
+/* body 스타일*/
 body {
   background-color: #9bbbd4;
   transition:
