@@ -15,9 +15,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const todoDiv = document.createElement("div");
     todoDiv.classList.add("todo");
-    todoDiv.textContent = todoText;
 
+    const todoTextElement = document.createElement("span");
+    todoTextElement.textContent = todoText;
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "삭제";
+    deleteButton.classList.add("delete");
+    deleteButton.addEventListener("click", function () {
+      todoDiv.remove();
+    });
+
+    todoDiv.appendChild(todoTextElement);
+    todoDiv.appendChild(deleteButton);
     todoContainer.appendChild(todoDiv);
+
     input.value = "";
   }
 
