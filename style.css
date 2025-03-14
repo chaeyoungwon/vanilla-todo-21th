@@ -243,6 +243,7 @@ body.dark-mode .sidebar {
   margin: 10px 0;
   padding: 10px;
   font-size: 15px;
+  font-weight: 500;
   background: transparent;
   color: #3a1d1d;
   border: none;
@@ -251,7 +252,8 @@ body.dark-mode .sidebar {
 
 /* 사이드바 닫기 버튼 */
 .close {
-  font-size: 20px;
+  margin-top: 20px;
+  font-size: 25px;
   background: none;
   border: none;
   cursor: pointer;
