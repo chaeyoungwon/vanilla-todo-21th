@@ -87,10 +87,17 @@ body.dark-mode .dateButton {
   color: white;
 }
 
+/* 카운트 숫자 */
 #todo-count {
-  font-weight: bold;
   margin-left: 10px;
-  color: rgb(0, 0, 0);
+  font-size: 14px;
+  color: #3a1d1d;
+}
+
+/* 카운트 item */
+.count {
+  color: #3a1d1d;
+  font-size: 14px;
 }
 
 /* 입력창 스타일 */
@@ -121,6 +128,9 @@ body.dark-mode .dateButton {
   margin-left: 10px;
   border-radius: 5px;
   background-color: #f7e600;
+  color: #3a1d1d;
+  font-weight: 500;
+  font-size: 14px;
 }
 
 /* 할 일 리스트 스타일 */
@@ -232,6 +242,7 @@ body.dark-mode .sidebar {
   display: block;
   margin: 10px 0;
   padding: 10px;
+  font-size: 15px;
   background: transparent;
   color: #3a1d1d;
   border: none;
@@ -259,7 +270,7 @@ body.dark-mode .close {
   border: none;
   background: transparent;
   color: #3a1d1d;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
 }
 
