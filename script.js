@@ -6,24 +6,33 @@ document.addEventListener("DOMContentLoaded", function () {
   const prevButton = document.getElementById("prev");
   const nextButton = document.getElementById("next");
 
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}년 ${String(date.getMonth() + 1).padStart(2, "0")}월 ${String(date.getDate()).padStart(2, "0")}일`;
+  }
+
   let currentDate = new Date().toISOString().split("T")[0];
-  currentDateSpan.textContent = currentDate;
+  currentDateSpan.textContent = formatDate(currentDate);
 
   function loadTodos() {
     todoContainer.innerHTML = "";
     const todos = JSON.parse(localStorage.getItem(currentDate)) || [];
-    todos.forEach(({ text, completed }) => addTodoElement(text, completed));
+    todos.forEach(({ id, text, completed }) =>
+      addTodoElement(id, text, completed)
+    );
   }
 
-  function addTodoElement(todoText, completed = false) {
+  function addTodoElement(id, todoText, completed = false) {
     const todoDiv = document.createElement("div");
     todoDiv.classList.add("todo");
+    todoDiv.dataset.id = id;
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = completed;
+    checkbox.classList.add("checkbox");
     checkbox.addEventListener("change", function () {
-      toggleComplete(todoText, checkbox.checked);
+      toggleComplete(id, checkbox.checked);
     });
 
     const todoTextElement = document.createElement("span");
@@ -37,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
     deleteButton.textContent = "삭제";
     deleteButton.classList.add("delete");
     deleteButton.onclick = function () {
-      removeTodo(todoText);
+      removeTodo(id);
     };
 
     todoDiv.appendChild(checkbox);
@@ -51,25 +60,35 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!todoText) return;
 
     const todos = JSON.parse(localStorage.getItem(currentDate)) || [];
-    todos.push({ text: todoText, completed: false });
+
+    const newTodo = {
+      id: crypto.randomUUID(),
+      text: todoText,
+      completed: false,
+    };
+
+    todos.push(newTodo);
     localStorage.setItem(currentDate, JSON.stringify(todos));
 
-    addTodoElement(todoText);
+    addTodoElement(newTodo.id, todoText, false);
     input.value = "";
   }
 
-  function removeTodo(todoText) {
+  function removeTodo(id) {
     let todos = JSON.parse(localStorage.getItem(currentDate)) || [];
-    todos = todos.filter((todo) => todo.text !== todoText);
+    todos = todos.filter((todo) => todo.id !== id);
+
     localStorage.setItem(currentDate, JSON.stringify(todos));
     loadTodos();
   }
 
-  function toggleComplete(todoText, isCompleted) {
+  function toggleComplete(id, isCompleted) {
     let todos = JSON.parse(localStorage.getItem(currentDate)) || [];
+
     todos = todos.map((todo) =>
-      todo.text === todoText ? { ...todo, completed: isCompleted } : todo
+      todo.id === id ? { ...todo, completed: isCompleted } : todo
     );
+
     localStorage.setItem(currentDate, JSON.stringify(todos));
     loadTodos();
   }
@@ -78,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const newDate = new Date(currentDate);
     newDate.setDate(newDate.getDate() + days);
     currentDate = newDate.toISOString().split("T")[0];
-    currentDateSpan.textContent = currentDate;
+    currentDateSpan.textContent = formatDate(currentDate);
     loadTodos();
   }
 

@@ -32,7 +32,6 @@ nav {
 
 main {
   display: flex;
-  padding: 0 10rem;
   align-items: center;
   flex-direction: column;
 }
@@ -78,6 +77,9 @@ main {
   flex-direction: column;
   align-items: flex-end;
   gap: 10px;
+  height: 100%;
+  max-height: 800px;
+  overflow-y: scroll;
 }
 
 .todo {
@@ -94,14 +96,37 @@ main {
 }
 
 .todo input[type="checkbox"] {
+  appearance: none;
   flex-shrink: 0;
   width: 18px;
   height: 18px;
+  border-radius: 5px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  position: relative;
+  background-color: white;
+}
+
+.todo input[type="checkbox"]:checked {
+  background-color: #5bd15f;
+}
+
+.checkbox:checked::after {
+  content: "✓";
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  display: block;
 }
 
 .todo span {
   flex-grow: 1;
   font-size: 14px;
+  text-align: left;
 }
 
 .delete {
