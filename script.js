@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // DOM 요소 가져오기
   const input = document.querySelector(".input");
   const enterButton = document.querySelector(".enter");
   const todoContainer = document.querySelector(".container");
@@ -8,192 +9,166 @@ document.addEventListener("DOMContentLoaded", function () {
   const datePicker = document.getElementById("datePicker");
   const themeBtn = document.querySelector(".theme");
   const body = document.body;
+  const homeButton = document.querySelector("h2");
+  const sidebar = document.querySelector(".sidebar");
+  const hamburger = document.querySelector(".hamburger");
+  const closeBtn = document.querySelector(".close");
 
-  document.querySelector("h2").addEventListener("click", () => {
-    todoManager.currentDate = new Date().toISOString().split("T")[0];
-    currentDateSpan.textContent = todoManager.formatDate(
-      todoManager.currentDate
+  // 현재 선택된 날짜
+  let currentDate = new Date().toISOString().split("T")[0];
+
+  // 날짜 포맷 변환 함수
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+  }
+
+  // UI 날짜 업데이트
+  function updateDateUI() {
+    currentDateSpan.textContent = formatDate(currentDate);
+    datePicker.value = currentDate;
+  }
+
+  // 할 일 리스트 불러오기 (로컬 스토리지)
+  function loadTodos() {
+    todoContainer.innerHTML = "";
+    const todos = JSON.parse(localStorage.getItem(currentDate)) || [];
+    todos.forEach(({ id, text, completed }) =>
+      addTodoElement(id, text, completed)
     );
-    datePicker.value = todoManager.currentDate;
-    todoManager.loadTodos();
-  });
+  }
 
-  class TodoManager {
-    constructor() {
-      this.currentDate = new Date().toISOString().split("T")[0];
-      currentDateSpan.textContent = this.formatDate(this.currentDate);
-      datePicker.value = this.currentDate;
-      this.loadTodos();
+  // 새로운 할 일 요소 추가
+  function addTodoElement(id, text, completed = false) {
+    const todoDiv = document.createElement("div");
+    todoDiv.classList.add("todo");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = completed;
+    checkbox.addEventListener("change", () =>
+      toggleComplete(id, checkbox.checked)
+    );
+
+    const todoText = document.createElement("span");
+    todoText.textContent = text;
+    if (completed) {
+      todoText.style.textDecoration = "line-through";
+      todoText.style.color = "gray";
     }
 
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      return `${date.getFullYear()}년 ${String(date.getMonth() + 1).padStart(2, "0")}월 ${String(date.getDate()).padStart(2, "0")}일`;
-    }
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "삭제";
+    deleteButton.classList.add("delete");
+    deleteButton.addEventListener("click", () => removeTodo(id));
 
-    loadTodos() {
-      todoContainer.innerHTML = "";
-      const todos = JSON.parse(localStorage.getItem(this.currentDate)) || [];
-      todos.forEach(({ id, text, completed }) =>
-        this.addTodoElement(id, text, completed)
-      );
-    }
+    todoDiv.append(checkbox, todoText, deleteButton);
+    todoContainer.appendChild(todoDiv);
+  }
 
-    addTodoElement(id, todoText, completed = false) {
-      const todoDiv = document.createElement("div");
-      todoDiv.classList.add("todo");
-      todoDiv.dataset.id = id;
+  // 할 일 추가
+  function addTodo() {
+    const text = input.value.trim();
+    if (!text) return;
 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = completed;
-      checkbox.classList.add("checkbox");
-      checkbox.addEventListener("change", () =>
-        this.toggleComplete(id, checkbox.checked)
-      );
+    const todos = JSON.parse(localStorage.getItem(currentDate)) || [];
+    const newTodo = { id: crypto.randomUUID(), text, completed: false };
 
-      const todoTextElement = document.createElement("span");
-      todoTextElement.textContent = todoText;
-      if (completed) {
-        todoTextElement.style.textDecoration = "line-through";
-        todoTextElement.style.color = "gray";
-      }
+    todos.push(newTodo);
+    localStorage.setItem(currentDate, JSON.stringify(todos));
+    addTodoElement(newTodo.id, text);
+    input.value = "";
+  }
 
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "삭제";
-      deleteButton.classList.add("delete");
-      deleteButton.onclick = () => this.removeTodo(id);
+  // 할 일 삭제
+  function removeTodo(id) {
+    let todos = JSON.parse(localStorage.getItem(currentDate)) || [];
+    todos = todos.filter((todo) => todo.id !== id);
+    localStorage.setItem(currentDate, JSON.stringify(todos));
+    loadTodos();
+  }
 
-      todoDiv.append(checkbox, todoTextElement, deleteButton);
-      todoContainer.appendChild(todoDiv);
-    }
+  // 완료 상태 체크박스
+  function toggleComplete(id, isCompleted) {
+    let todos = JSON.parse(localStorage.getItem(currentDate)) || [];
+    todos = todos.map((todo) =>
+      todo.id === id ? { ...todo, completed: isCompleted } : todo
+    );
+    localStorage.setItem(currentDate, JSON.stringify(todos));
+    loadTodos();
+  }
 
-    addTodo() {
-      const todoText = input.value.trim();
-      if (!todoText) return;
+  // 날짜 변경 (이전/다음)
+  function changeDate(days) {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + days);
+    currentDate = newDate.toISOString().split("T")[0];
+    updateDateUI();
+    loadTodos();
+  }
 
-      const todos = JSON.parse(localStorage.getItem(this.currentDate)) || [];
-      const newTodo = {
-        id: crypto.randomUUID(),
-        text: todoText,
-        completed: false,
-      };
+  // 다크모드 설정
+  function loadTheme() {
+    const isDarkMode = JSON.parse(localStorage.getItem("darkMode"));
+    body.classList.toggle("dark-mode", isDarkMode);
+    themeBtn.textContent = isDarkMode ? "☀️" : "🌙";
+  }
 
-      todos.push(newTodo);
-      localStorage.setItem(this.currentDate, JSON.stringify(todos));
-      this.addTodoElement(newTodo.id, todoText);
-      input.value = "";
-    }
+  function toggleTheme() {
+    const isDarkMode = body.classList.toggle("dark-mode");
+    themeBtn.textContent = isDarkMode ? "☀️" : "🌙";
+    localStorage.setItem("darkMode", isDarkMode);
+  }
 
-    removeTodo(id) {
-      let todos = JSON.parse(localStorage.getItem(this.currentDate)) || [];
-      todos = todos.filter((todo) => todo.id !== id);
-      localStorage.setItem(this.currentDate, JSON.stringify(todos));
-      this.loadTodos();
-    }
+  // 사이드바 열기/닫기 기능
+  function openSidebar() {
+    sidebar.style.left = "0";
+  }
 
-    toggleComplete(id, isCompleted) {
-      let todos = JSON.parse(localStorage.getItem(this.currentDate)) || [];
-      todos = todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: isCompleted } : todo
-      );
-      localStorage.setItem(this.currentDate, JSON.stringify(todos));
-      this.loadTodos();
-    }
+  function closeSidebar() {
+    sidebar.style.left = "-250px";
+  }
 
-    changeDate(days) {
-      const newDate = new Date(this.currentDate);
-      newDate.setDate(newDate.getDate() + days);
-      this.currentDate = newDate.toISOString().split("T")[0];
-      currentDateSpan.textContent = this.formatDate(this.currentDate);
-      this.loadTodos();
+  function handleOutsideClick(event) {
+    if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+      closeSidebar();
     }
   }
 
-  class Sidebar {
-    constructor() {
-      this.sidebar = document.querySelector(".sidebar");
-      this.hamburger = document.querySelector(".hamburger");
-      this.closeBtn = document.querySelector(".close");
-      this.addEventListeners();
-    }
-
-    addEventListeners() {
-      this.hamburger.addEventListener("click", () => {
-        this.sidebar.style.left = "0";
-      });
-
-      this.closeBtn.addEventListener("click", () => {
-        this.sidebar.style.left = "-250px";
-      });
-
-      document.addEventListener("click", (event) => {
-        if (
-          !this.sidebar.contains(event.target) &&
-          !this.hamburger.contains(event.target)
-        ) {
-          this.sidebar.style.left = "-250px";
-        }
-      });
-    }
-  }
-
-  class DarkMode {
-    constructor() {
-      this.themeBtn = themeBtn;
-      this.body = body;
-      this.loadTheme();
-      this.setup();
-    }
-
-    setup() {
-      this.themeBtn.addEventListener("click", () => {
-        this.toggleTheme();
-      });
-    }
-
-    toggleTheme() {
-      const isDarkMode = this.body.classList.toggle("dark-mode");
-      this.themeBtn.textContent = isDarkMode ? "☀️" : "🌙";
-      localStorage.setItem("darkMode", isDarkMode);
-    }
-
-    loadTheme() {
-      const isDarkMode = JSON.parse(localStorage.getItem("darkMode"));
-      if (isDarkMode) {
-        this.body.classList.add("dark-mode");
-        this.themeBtn.textContent = "☀️";
-      } else {
-        this.body.classList.remove("dark-mode");
-        this.themeBtn.textContent = "🌙";
-      }
-    }
-  }
-
-  const todoManager = new TodoManager();
-  new Sidebar();
-  new DarkMode();
-
-  // ✅ 이벤트 리스너 설정
-  enterButton.addEventListener("click", () => todoManager.addTodo());
+  // 이벤트 리스너 등록
+  enterButton.addEventListener("click", addTodo);
   input.addEventListener("keypress", (event) => {
-    if (event.key === "Enter") todoManager.addTodo();
+    if (event.key === "Enter") addTodo();
   });
-  prevButton.addEventListener("click", () => todoManager.changeDate(-1));
-  nextButton.addEventListener("click", () => todoManager.changeDate(1));
 
-  document.getElementById("datePicker").addEventListener("change", function () {
-    todoManager.currentDate = this.value;
-    currentDateSpan.textContent = todoManager.formatDate(
-      todoManager.currentDate
-    );
-    todoManager.loadTodos();
+  prevButton.addEventListener("click", () => changeDate(-1));
+  nextButton.addEventListener("click", () => changeDate(1));
+
+  datePicker.addEventListener("change", function () {
+    currentDate = this.value;
+    updateDateUI();
+    loadTodos();
   });
 
   document.querySelectorAll(".weekBtn").forEach((button) => {
-    button.addEventListener("click", () => {
-      const days = parseInt(button.dataset.days);
-      todoManager.changeDate(days);
-    });
+    button.addEventListener("click", () =>
+      changeDate(parseInt(button.dataset.days))
+    );
   });
+
+  homeButton.addEventListener("click", () => {
+    currentDate = new Date().toISOString().split("T")[0];
+    updateDateUI();
+    loadTodos();
+  });
+
+  themeBtn.addEventListener("click", toggleTheme);
+  hamburger.addEventListener("click", openSidebar);
+  closeBtn.addEventListener("click", closeSidebar);
+  document.addEventListener("click", handleOutsideClick);
+
+  // 초기 실행
+  updateDateUI();
+  loadTodos();
+  loadTheme();
 });
